@@ -15,12 +15,10 @@ class ExecutorGrailsPlugin {
     ]
 
     // TODO Fill in these fields
-    def author = "Your name"
-    def authorEmail = ""
-    def title = "Plugin summary/headline"
-    def description = '''\\
-Brief description of the plugin.
-'''
+    def author = "Joshua Burnett"
+    def authorEmail = "joshua@greenbill.com"
+    def title = "Concurrency / asynchronous /background process plugin"
+    def description = '''\\ its concurrent baby.'''
 
     // URL to the plugin's documentation
     def documentation = "http://grails.org/plugin/executor"
