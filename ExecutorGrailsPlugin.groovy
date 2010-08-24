@@ -6,7 +6,7 @@ class ExecutorGrailsPlugin {
     // the plugin version
     def version = "0.1"
     // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "1.3.4 > *"
+    def grailsVersion = "1.2 > *"
     // the other plugins this plugin depends on
     def dependsOn = [:]
     // resources that are excluded from plugin packaging
@@ -18,10 +18,10 @@ class ExecutorGrailsPlugin {
     def author = "Joshua Burnett"
     def authorEmail = "joshua@greenbill.com"
     def title = "Concurrency / asynchronous /background process plugin"
-    def description = '''\\ its concurrent baby.'''
+    def description = '''\\ its all concurrent baby.'''
 
     // URL to the plugin's documentation
-    def documentation = "http://grails.org/plugin/executor"
+    def documentation = "http://github.com/basejump/grails-executor"
 
 
 	def doWithSpring = {
