@@ -49,7 +49,7 @@ class SessionBoundExecutorServiceTests {
 	
 	@Test
 	void testExecute() {
-
+		assertTrue Book.runAsyncFired.get()
 		assert 5 == Book.count()
 
 		def latch = new CountDownLatch(1)
