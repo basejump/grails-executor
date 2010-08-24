@@ -1,14 +1,17 @@
 Summary
 --------
 
-This grails enables the java concurrency Executor Framework into a plugin so your grails app can take advantage of asynchronous (background thread / concurrent) processing. The main need for this as opposed to just using an [ExecutorService][] from [Executors][] is that we need to wrap the calls so there is a Hibernate session bound to the thread. 
+This grails enables the java concurrency Executor Framework into a plugin so your grails app can take advantage of asynchronous (background thread / concurrent) processing. The main need for this as opposed to just using an [ExecutorService][] from [Executors][] is that we need to wrap the calls so there is a Hibernate session bound to the thread.  
+
 Here are a couple of links to get give you some background information.
-http://www.ibm.com/developerworks/java/library/j-jtp1126.html
-http://www.vogella.de/articles/JavaConcurrency/article.html
-and here are few good write up on groovy concurrency 
-http://groovy.codehaus.org/Concurrency+with+Groovy
-and a slide show
-http://www.slideshare.net/paulk_asert/groovy-and-concurrency-paul-king
+
+<http://www.ibm.com/developerworks/java/library/j-jtp1126.html>  
+<http://www.vogella.de/articles/JavaConcurrency/article.html>  
+
+and here are few good write up on groovy concurrency  
+<http://groovy.codehaus.org/Concurrency+with+Groovy>  
+and a slide show  
+<http://www.slideshare.net/paulk_asert/groovy-and-concurrency-paul-king>
 
 Setup
 -------
