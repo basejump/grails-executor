@@ -36,7 +36,7 @@ You can override it and inject your own special executor using [Executors][] by 
 Usage
 ------
 
-You can inject the executorService into any bean. Its just an [ExecutorService][] so, again, see the api for more on what you can do. Remember that a closure is a [Runnable](http://download.oracle.com/javase/6/docs/api/java/lang/Runnable.html) so can pass it to any of the methods that accept a runnable. A great example exists [here on the groovy site](http://groovy.codehaus.org/Concurrency+with+Groovy)
+You can inject the executorService into any bean. Its just an [ExecutorService][] so, again, see the api for more on what you can do. Remember that a closure is a [Runnable][] so can pass it to any of the methods that accept a runnable. A great example exists [here on the groovy site](http://groovy.codehaus.org/Concurrency+with+Groovy)
 
 The plugin adds shortcut methods to any service/controller/domain objects.
 
@@ -128,9 +128,11 @@ GOTCHAS and TODOs
 --------
 
 * after this was written I realized that in extending the AbstractExecutorService and overriding the newTaskFor it only works for Java 1.6 and not 1.5 so submit won't get a session bound if you are running java 1.5
-
+* TODO - setup a wrapper so we can use a [ScheduledExecutorService][] too.
 
 
 [ExecutorService]: http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ExecutorService.html
 [Executors]: http://download.oracle.com/javase/6/docs/api/java/util/concurrent/Executors.html
-[Future]: 
+[Future]: http://download-llnw.oracle.com/javase/6/docs/api/java/util/concurrent/Future.html
+[Runnable]: http://download.oracle.com/javase/6/docs/api/java/lang/Runnable.html
+[ScheduledExecutorService]: http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ScheduledExecutorService.html
