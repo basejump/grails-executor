@@ -31,19 +31,31 @@ class ExecutorGrailsPlugin {
 			executor = Executors.newCachedThreadPool()
 		}
 	}
-
-    def doWithDynamicMethods = { ctx ->
-		[application.controllerClasses, application.serviceClasses, application.domainClasses].flatten().each {
-			it.metaClass.runAsync = { Runnable runme ->
+	
+	def addAsyncMethods(application,clazz) {
+			clazz.metaClass.runAsync = { Runnable runme ->
 				application.mainContext.executorService.execute(runme)
 			}
-			it.metaClass.callAsync = { Closure clos ->
-				return application.mainContext.executorService.submit(clos as Callable)
+			clazz.metaClass.callAsync = { Closure clos ->
+				application.mainContext.executorService.submit(clos as Callable)
 			}
-			it.metaClass.callAsync = { Runnable runme, def returnval ->
-				return application.mainContext.executorService.submit(runme,returnval)
+			clazz.metaClass.callAsync = { Runnable runme, def returnval ->
+				application.mainContext.executorService.submit(runme,returnval)
 			}
+	}
+
+	def doWithDynamicMethods = { ctx ->
+		[application.controllerClasses, application.serviceClasses, application.domainClasses].flatten().each {it->
+			addAsyncMethods(application,it)
 		}
-    }
+	}
+
+	def onChange = { event ->
+		if (application.isControllerClass(event.source) || application.isDomainClass(event.source) || application.isServiceClass(event.source)) {
+			addAsyncMethods(application,event.source)
+		}
+	}
+
+	
 
 }
