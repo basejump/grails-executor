@@ -4,7 +4,7 @@ import java.util.concurrent.Callable
 
 class ExecutorGrailsPlugin {
     // the plugin version
-    def version = "0.1"
+    def version = "0.2"
     // the version or versions of Grails the plugin is designed for
     def grailsVersion = "1.2 > *"
     // the other plugins this plugin depends on
@@ -23,6 +23,7 @@ class ExecutorGrailsPlugin {
     // URL to the plugin's documentation
     def documentation = "http://github.com/basejump/grails-executor"
 
+	def observe = ["controllers","services"]
 
 	def doWithSpring = {
 		executorService(SessionBoundExecutorService) { bean->
@@ -51,7 +52,7 @@ class ExecutorGrailsPlugin {
 	}
 
 	def onChange = { event ->
-		if (application.isControllerClass(event.source) || application.isDomainClass(event.source) || application.isServiceClass(event.source)) {
+		if (application.isControllerClass(event.source) || application.isServiceClass(event.source)) {
 			addAsyncMethods(application,event.source)
 		}
 	}
