@@ -16,7 +16,7 @@ and a slide show
 Setup
 -------
 
-The plugin sets up a service called executorService so you need do nothing really. It is an implementation of an [ExecutorService][] interface so read up on that for more info on what you can do with the executorService. It basically wraps another [ExecutorService][] that by default uses the java [Executors][] utility class to setup the injected service. The default executorService looks like this 
+The plugin sets up a Grails service bean called executorService so you need do nothing really. It is an implementation of an Java [ExecutorService][] (not to be confused with a Grails Service) interface so read up on that for more info on what you can do with the executorService. It basically wraps another thread pool [ExecutorService][]. By default it uses the java [Executors][] utility class to setup the injected thread pool ExecutorService implementation. The default Grails executorService config looks like this 
 
 	executorService(grails.plugin.executor.SessionBoundExecutorService) { bean->
 		bean.destroyMethod = 'destroy'
@@ -24,7 +24,7 @@ The plugin sets up a service called executorService so you need do nothing reall
 		executor = Executors.newCachedThreadPool()
 	}
 
-You can override it and inject your own special executor using [Executors][] by overriding the bean in conf/spring/resources.groovy or your doWithSpring in your plugin.
+You can override it and inject your own special thread pool executor using [Executors][] by overriding the bean in conf/spring/resources.groovy or your doWithSpring in your plugin.
 	
 	executorService(grails.plugin.executor.SessionBoundExecutorService) { bean->
 		bean.destroyMethod = 'destroy' //keep this destroy method so it can try and clean up nicely
@@ -36,14 +36,14 @@ You can override it and inject your own special executor using [Executors][] by 
 Usage
 ------
 
-You can inject the executorService into any bean. Its just an [ExecutorService][] so, again, see the api for more on what you can do. Remember that a closure is a [Runnable][] so can pass it to any of the methods that accept a runnable. A great example exists [here on the groovy site](http://groovy.codehaus.org/Concurrency+with+Groovy)
+You can inject the executorService into any bean. Its just an [ExecutorService][] implementation so, again, see the api for more on what you can do. Remember that a closure is a [Runnable][] so you can pass it to any of the methods that accept a runnable. A great example exists [here on the groovy site](http://groovy.codehaus.org/Concurrency+with+Groovy)
 
-The plugin adds shortcut methods to any service/controller/domain objects.
+The plugin adds shortcut methods to any service/controller/domain artifacts.
 
 - **runAsync _closure_** - takes any closure and passes it through to the executorService.execute
 - **callAsync _closure_** - takes any closure that returns a value and passes it through to the executorService.submit . You will get a [Future] back that you can work with. This will not bind a session in java 1.5 and only works on 1.6 or later
 
-NOTE ON TRANSACTIONS: keep in mind that this is spinning of a new thread and that any call will be in outside of the any transaction you are in. Use .withTransaction inside your closure, runnable or callable to make your process run in a transaction that is not calling a transactional service method (such as using this in a controller).
+NOTE ON TRANSACTIONS: keep in mind that this is spinning off a new thread and that any call will be outside of the transaction you are in. Use .withTransaction inside your closure, runnable or callable to make your process run in a transaction that is not calling a transactional service method (such as using this in a controller).
 
 Examples
 --------
