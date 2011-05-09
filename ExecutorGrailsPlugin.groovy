@@ -1,4 +1,4 @@
-import grails.plugin.executor.SessionBoundExecutorService
+import grails.plugin.executor.PersistenceContextExecutorWrapper
 import java.util.concurrent.Executors
 import java.util.concurrent.Callable
 
@@ -26,22 +26,22 @@ class ExecutorGrailsPlugin {
 	def observe = ["controllers","services"]
 
 	def doWithSpring = {
-		executorService(SessionBoundExecutorService) { bean->
+		executorService(PersistenceContextExecutorWrapper) { bean->
 			bean.destroyMethod = 'destroy'
-			sessionFactory = ref("sessionFactory")
+			persistenceInterceptor = ref("persistenceInterceptor")
 			executor = Executors.newCachedThreadPool()
 		}
 	}
 	
 	def addAsyncMethods(application,clazz) {
 			clazz.metaClass.runAsync = { Runnable runme ->
-				application.mainContext.executorService.execute(runme)
+				application.mainContext.executorService.withPersistence(runme)
 			}
 			clazz.metaClass.callAsync = { Closure clos ->
-				application.mainContext.executorService.submit(clos as Callable)
+				application.mainContext.executorService.withPersistence(clos)
 			}
 			clazz.metaClass.callAsync = { Runnable runme, def returnval ->
-				application.mainContext.executorService.submit(runme,returnval)
+				application.mainContext.executorService.withPersistence(runme, returnval)
 			}
 	}
 
