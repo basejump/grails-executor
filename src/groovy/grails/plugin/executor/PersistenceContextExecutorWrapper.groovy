@@ -69,6 +69,30 @@ class PersistenceContextExecutorWrapper {
 		executor.submit(inPersistence((Runnable)task), returnValue)
 	}
 	
+	Future withoutSession(Closure task) {
+		executor.withoutPersistence(task)
+	}
+
+	Future withoutSession(Callable task) {
+		executor.withoutPersistence(task)
+	}
+
+	Future withoutSession(Runnable task, returnValue = null) {
+		executor.withoutPersistence(task, returnValue)
+	}
+
+	Future withoutPersistence(Closure task) {
+		executor.submit(task as Callable)
+	}
+
+	Future withoutPersistence(Callable task) {
+		executor.submit(task)
+	}
+
+	Future withoutPersistence(Runnable task, returnValue = null) {
+		executor.submit(task, returnValue)
+	}
+	
 	Callable inPersistence(Closure task) {
 		inPersistence(task as Callable)
 	}
