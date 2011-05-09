@@ -10,4 +10,9 @@ grails.project.dependency.resolution = {
 		grailsHome()
 		grailsCentral()
 	}
+	plugins {
+		test(":spock:0.5-groovy-1.7") {
+			export = false
+		}
+	}
 }
