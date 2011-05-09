@@ -23,6 +23,11 @@ import java.util.concurrent.ExecutorService
 
 import org.codehaus.groovy.grails.support.PersistenceContextInterceptor
 
+/**
+ * Wraps an ExecutorService, overriding the submitting methods to have the work done in a 
+ * persistence context (via the persistenceInterceptor) and adds new methods that make it possible 
+ * to still do work without opening a persistence context
+ */
 class PersistenceContextExecutorWrapper {
     
 	// Autowired
