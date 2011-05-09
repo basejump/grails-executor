@@ -36,7 +36,7 @@ class ExecutorGrailsPlugin {
 		clazz.metaClass.callAsync = { Closure clos ->
 			application.mainContext.executorService.withPersistence(clos)
 		}
-		clazz.metaClass.callAsync = { Runnable runme, def returnval ->
+		clazz.metaClass.callAsync = { Runnable runme, returnval ->
 			application.mainContext.executorService.withPersistence(runme, returnval)
 		}
 	}
