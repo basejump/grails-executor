@@ -42,8 +42,10 @@ class ExecutorGrailsPlugin {
 	}
 
 	def doWithDynamicMethods = { ctx ->
-		[application.controllerClasses, application.serviceClasses, application.domainClasses].flatten().each {
-			addAsyncMethods(application,it)
+		for (artifactClasses in [application.controllerClasses, application.serviceClasses, application.domainClasses]) {
+			for (clazz in artifactClasses) {
+				addAsyncMethods(application, clazz)
+			}
 		}
 	}
 
