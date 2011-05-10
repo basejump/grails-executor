@@ -102,6 +102,19 @@ class PersistenceContextExecutorWrapper {
 		inPersistence(task as Callable)
 	}
 
+	Future leftShift(Callable task) {
+		withPersistence(task)
+	}
+	
+	Future leftShift(Closure task) {
+		withPersistence(task)
+	}
+	
+	Runnable leftShift(Runnable task) {
+		execute(task)
+		task
+	}
+	
 	Callable inPersistence(Callable task) {
 		if (persistenceInterceptor == null) {
 			throw new IllegalStateException("Unable to create persistence context wrapped callable because persistenceInterceptor is null")
