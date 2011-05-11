@@ -20,7 +20,7 @@ import grails.plugin.spock.*
 import spock.lang.*
 import spock.util.concurrent.BlockingVariable
 
-import java.util.concurrent.Callable
+import java.util.concurrent.*
 
 import executor.test.Book
 
@@ -28,31 +28,15 @@ class AlternativeSyntaxesSpec extends IntegrationSpec {
 
 	// Autowired
 	def executorService
-	
-	def var = new BlockingVariable()
 
 	def "left shift closure"() {
 		when:
-		executorService << { var.set(1) }
+		def future = executorService << { 2 }
 		
 		then:
-		var.get() == 1
+		future != null
+		future instanceof Future
+		future.get(1, TimeUnit.SECONDS)
 	}
 
-	def "left shift callable"() {
-		when:
-		executorService << new Callable() { def call() { var.set(1) } }
-		
-		then:
-		var.get() == 1
-	}
-
-	def "left shift runnable"() {
-		when:
-		executorService << new Runnable() { void run() { var.set(1) } }
-		
-		then:
-		var.get() == 1
-	}
-	
 }

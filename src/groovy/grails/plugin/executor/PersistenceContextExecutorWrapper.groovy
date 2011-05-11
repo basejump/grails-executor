@@ -35,86 +35,77 @@ class PersistenceContextExecutorWrapper {
 	PersistenceContextInterceptor persistenceInterceptor
 	
 	void execute(Runnable command) {
-		executor.execute((Runnable)inPersistence(command))
+		executor.execute(inPersistence(command))
+	}
+
+	void executeWithoutSession(Runnable command) {
+		executor.execute(command)
+	}
+
+	void executeWithoutPersistence(Runnable command) {
+		executor.execute(command)
 	}
 	
 	public <T> Future<T> submit(Callable<T> task) {
-		withPersistence(task)
+		executor.submit(inPersistence(task))
+	}
+
+	public <T> Future<T> submitWithoutSession(Callable<T> task) {
+		executor.submit(task)
+	}
+
+	public <T> Future<T> submitWithoutPersistence(Callable<T> task) {
+		executor.submit(task)
 	}
 	
 	Future<?> submit(Runnable task) {
-		withPersistence(task)
+		executor.submit(inPersistence(task))
+	}
+
+	Future<?> submitWithoutSession(Runnable task) {
+		executor.submit(task)
+	}
+
+	Future<?> submitWithoutPersistence(Runnable task) {
+		executor.submit(task)
 	}
 	
 	public <T> Future<T> submit(Runnable task, T result) {
-		withPersistence(task, result)
+		executor.submit(inPersistence(task), result)
+	}
+
+	public <T> Future<T> submitWithoutSession(Runnable task, T result) {
+		executor.submit(task, result)
+	}
+
+	public <T> Future<T> submitWithoutPersistence(Runnable task, T result) {
+		executor.submit(task, result)
 	}
 	
 	Future withSession(Closure task) {
 		withPersistence(task)
 	}
-
-	Future withSession(Callable task) {
-		withPersistence(task)
-	}
-
-	void withSession(Runnable task, returnValue = null) {
-		withPersistence(task, returnValue)
-	}
 	
 	Future withPersistence(Closure task) {
-		executor.submit(inPersistence(task))
-	}
-
-	Future withPersistence(Callable task) {
-		executor.submit(inPersistence(task))
-	}
-
-	Future withPersistence(Runnable task, returnValue = null) {
-		executor.submit(inPersistence((Runnable)task), returnValue)
+		executor.submit(inPersistence((Closure)task))
 	}
 	
 	Future withoutSession(Closure task) {
 		executor.withoutPersistence(task)
 	}
 
-	Future withoutSession(Callable task) {
-		executor.withoutPersistence(task)
-	}
-
-	Future withoutSession(Runnable task, returnValue = null) {
-		executor.withoutPersistence(task, returnValue)
-	}
-
 	Future withoutPersistence(Closure task) {
 		executor.submit(task as Callable)
 	}
 
-	Future withoutPersistence(Callable task) {
-		executor.submit(task)
-	}
-
-	Future withoutPersistence(Runnable task, returnValue = null) {
-		executor.submit(task, returnValue)
+	Future leftShift(Closure task) {
+		withPersistence(task)
 	}
 	
 	Callable inPersistence(Closure task) {
 		inPersistence(task as Callable)
 	}
 
-	Future leftShift(Callable task) {
-		withPersistence(task)
-	}
-	
-	Future leftShift(Closure task) {
-		withPersistence(task)
-	}
-	
-	Runnable leftShift(Runnable task) {
-		execute(task)
-		task
-	}
-	
 	Callable inPersistence(Callable task) {
 		if (persistenceInterceptor == null) {
 			throw new IllegalStateException("Unable to create persistence context wrapped callable because persistenceInterceptor is null")
