@@ -20,7 +20,7 @@ import executor.test.Book
 import org.junit.*
 import static org.junit.Assert.*
 
-class SessionBoundExecutorServiceTests {
+class PersistenceExecutorServiceTests {
 
 	static transactional = false
 

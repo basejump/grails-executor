@@ -1,11 +1,11 @@
 /*
- * Copyright 2010 Joshua Burnett
+ * Copyright 2011 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,19 +16,27 @@
 
 package grails.plugin.executor
 
-import org.hibernate.SessionFactory
-import java.util.concurrent.Callable
-import java.util.concurrent.FutureTask
+import grails.plugin.spock.*
+import spock.lang.*
+import spock.util.concurrent.BlockingVariable
 
+import java.util.concurrent.*
 
-public class SessionFutureTask<V> extends FutureTask<V>{
+import executor.test.Book
 
-	SessionFutureTask(Callable<V> callable, SessionFactory sessionFactory) {
-		super(new SessionBoundCallable(callable,sessionFactory));
-    }
+class AlternativeSyntaxesSpec extends IntegrationSpec {
 
-    SessionFutureTask(Runnable r, V result, SessionFactory sessionFactory) {
-        super(new SessionBoundRunnable(r,sessionFactory), result);
-    }
+	// Autowired
+	def executorService
+
+	def "left shift closure"() {
+		when:
+		def future = executorService << { 2 }
+		
+		then:
+		future != null
+		future instanceof Future
+		future.get(1, TimeUnit.SECONDS)
+	}
 
 }
