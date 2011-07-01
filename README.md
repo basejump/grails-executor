@@ -1,7 +1,21 @@
 Summary
 --------
 
-This grails enables the java concurrency Executor Framework into a plugin so your grails app can take advantage of asynchronous (background thread / concurrent) processing. The main need for this as opposed to just using an [ExecutorService][] from [Executors][] is that we need to wrap the calls so there is a Hibernate session bound to the thread.  
+This grails enables the java concurrency Executor Framework into a plugin so your grails app can take advantage of asynchronous (background thread / concurrent) processing. The main need for this as opposed to just using an [ExecutorService][] from [Executors][] is that we need to wrap the calls so there is a Hibernate or other Data provider session bound to the thread. 
+This uses the following pattern to wrap runnables/Closures so they get a session for whatever Gorm you are using. Hibernate being the defualt but this is also tested with Mongo (no heavily)  See the info on the [PersistenceContextInterceptor][] spring bean for more info
+
+	//injected spring bean
+	PersistenceContextInterceptor persistenceInterceptor
+	
+	protected wrap(Closure wrapped) {
+		persistenceInterceptor.init()
+		try {
+			wrapped()
+		} finally {
+			persistenceInterceptor.flush()
+			persistenceInterceptor.destroy()
+		}
+	}
 
 Here are a couple of links to get give you some background information.
 
@@ -16,9 +30,9 @@ and a slide show
 Setup
 -------
 
-The plugin sets up a Grails service bean called executorService so you need do nothing really. It is an implementation of an Java [ExecutorService][] (not to be confused with a Grails Service) interface so read up on that for more info on what you can do with the executorService. It basically wraps another thread pool [ExecutorService][]. By default it uses the java [Executors][] utility class to setup the injected thread pool ExecutorService implementation. The default Grails executorService config looks like this 
+The plugin sets up a Grails service bean called executorService so you need do nothing really. It delegates to an implementation of an Java [ExecutorService][] (not to be confused with a Grails Service) interface so read up on that for more info on what you can do with the executorService. It basically wraps another thread pool [ExecutorService][]. By default it uses the java [Executors][] utility class to setup the injected thread pool ExecutorService implementation. The default Grails executorService config looks like this 
 
-	executorService(grails.plugin.executor.SessionBoundExecutorService) { bean->
+	executorService( grails.plugin.executor.PersistenceContextExecutorWrapper ) { bean->
 		bean.destroyMethod = 'destroy'
 		sessionFactory = ref("sessionFactory")
 		executor = Executors.newCachedThreadPool()
@@ -26,7 +40,7 @@ The plugin sets up a Grails service bean called executorService so you need do n
 
 You can override it and inject your own special thread pool executor using [Executors][] by overriding the bean in conf/spring/resources.groovy or your doWithSpring in your plugin.
 	
-	executorService(grails.plugin.executor.SessionBoundExecutorService) { bean->
+	executorService(  grails.plugin.executor.PersistenceContextExecutorWrapper ) { bean->
 		bean.destroyMethod = 'destroy' //keep this destroy method so it can try and clean up nicely
 		sessionFactory = ref("sessionFactory")
 		//this can be whatever from Executors (don't write your own and pre-optimize)
@@ -36,14 +50,14 @@ You can override it and inject your own special thread pool executor using [Exec
 Usage
 ------
 
-You can inject the executorService into any bean. Its just an [ExecutorService][] implementation so, again, see the api for more on what you can do. Remember that a closure is a [Runnable][] so you can pass it to any of the methods that accept a runnable. A great example exists [here on the groovy site](http://groovy.codehaus.org/Concurrency+with+Groovy)
+You can inject the executorService into any bean. Its a PersistenceContextExecutorWrapper that delegates any calls to a concrete [ExecutorService][] implementation so, again, see the api for more on what you can do. Remember that a closure is a [Runnable][] so you can pass it to any of the methods that accept a runnable. A great example exists [here on the groovy site](http://groovy.codehaus.org/Concurrency+with+Groovy)
 
 The plugin adds shortcut methods to any service/controller/domain artifacts.
 
 - **runAsync _closure_** - takes any closure and passes it through to the executorService.execute
 - **callAsync _closure_** - takes any closure that returns a value and passes it through to the executorService.submit . You will get a [Future] back that you can work with. This will not bind a session in java 1.5 and only works on 1.6 or later
 
-NOTE ON TRANSACTIONS: keep in mind that this is spinning off a new thread and that any call will be outside of the transaction you are in. Use .withTransaction inside your closure, runnable or callable to make your process run in a transaction that is not calling a transactional service method (such as using this in a controller).
+NOTE ON TRANSACTIONS: keep in mind that this is spinning off a new thread and that any call will be outside of the transaction you are in. Use .withTransaction inside your closure, runnable or callable to make your process run in a transaction that is not calling a transactional service method (such as when using this in a controller).
 
 Examples
 --------
@@ -136,3 +150,4 @@ GOTCHAS and TODOs
 [Future]: http://download-llnw.oracle.com/javase/6/docs/api/java/util/concurrent/Future.html
 [Runnable]: http://download.oracle.com/javase/6/docs/api/java/lang/Runnable.html
 [ScheduledExecutorService]: http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ScheduledExecutorService.html
+[PersistenceContextInterceptor]: http://grails.org/doc/latest/api/org/codehaus/groovy/grails/support/PersistenceContextInterceptor.html 

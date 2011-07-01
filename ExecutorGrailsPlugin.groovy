@@ -20,7 +20,7 @@ import java.util.concurrent.Callable
 
 class ExecutorGrailsPlugin {
 
-	def version = "0.3-SNAPSHOT"
+	def version = "0.3"
 	def grailsVersion = "1.2 > *"
 	def dependsOn = [:]
 
