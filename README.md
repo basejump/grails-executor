@@ -1,7 +1,7 @@
 Summary
 --------
 
-This grails enables the java concurrency Executor Framework into a plugin so your grails app can take advantage of asynchronous (background thread / concurrent) processing. The main need for this as opposed to just using an [ExecutorService][] from [Executors][] is that we need to wrap the calls so there is a Hibernate or other Data provider session bound to the thread. 
+This grails plugin incorporates the java concurrency Executor Framework into a plugin so your grails app can take advantage of asynchronous (background thread / concurrent) processing. The main need for this as opposed to just using an [ExecutorService][] from [Executors][] is that we need to wrap the calls so there is a Hibernate or other Data provider session bound to the thread. 
 This uses the following pattern to wrap runnables/Closures so they get a session for whatever Gorm you are using. Hibernate being the defualt but this is also tested with Mongo (no heavily)  See the info on the [PersistenceContextInterceptor][] spring bean for more info
 
 	//injected spring bean
