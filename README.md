@@ -34,7 +34,6 @@ The plugin sets up a Grails service bean called executorService so you need do n
 
 	executorService( grails.plugin.executor.PersistenceContextExecutorWrapper ) { bean->
 		bean.destroyMethod = 'destroy'
-		sessionFactory = ref("sessionFactory")
 		executor = Executors.newCachedThreadPool()
 	}
 
@@ -42,7 +41,6 @@ You can override it and inject your own special thread pool executor using [Exec
 	
 	executorService(  grails.plugin.executor.PersistenceContextExecutorWrapper ) { bean->
 		bean.destroyMethod = 'destroy' //keep this destroy method so it can try and clean up nicely
-		sessionFactory = ref("sessionFactory")
 		//this can be whatever from Executors (don't write your own and pre-optimize)
 		executor = Executors.newCachedThreadPool(new YourSpecialThreadFactory()) 
 	}
