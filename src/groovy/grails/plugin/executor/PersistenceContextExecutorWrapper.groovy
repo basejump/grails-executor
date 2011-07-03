@@ -22,6 +22,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.ExecutorService
 
 import org.codehaus.groovy.grails.support.PersistenceContextInterceptor
+import org.springframework.beans.factory.annotation.Autowired
 
 /**
  * Wraps an ExecutorService, overriding the submitting methods to have the work done in a 
@@ -32,7 +33,7 @@ class PersistenceContextExecutorWrapper {
     
 	// Autowired
 	@Delegate ExecutorService executor
-	PersistenceContextInterceptor persistenceInterceptor
+	@Autowired PersistenceContextInterceptor persistenceInterceptor
 	
 	void execute(Runnable command) {
 		executor.execute(inPersistence(command))
