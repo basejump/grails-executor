@@ -2,7 +2,7 @@ Summary
 --------
 
 This grails plugin incorporates the java concurrency Executor Framework into a plugin so your grails app can take advantage of asynchronous (background thread / concurrent) processing. The main need for this as opposed to just using an [ExecutorService][] from [Executors][] is that we need to wrap the calls so there is a Hibernate or other Data provider session bound to the thread. 
-This uses the following pattern to wrap runnables/Closures so they get a session for whatever Gorm you are using. Hibernate being the defualt but this is also tested with Mongo (no heavily)  See the info on the [PersistenceContextInterceptor][] spring bean for more info
+This uses the following pattern to wrap Runnable/Closures so they get a session for whatever Gorm you are using. Hibernate being the default but this is also tested with Mongo (no heavily)  See the info on the [PersistenceContextInterceptor][] grails bean for more info
 
 	//injected spring bean
 	PersistenceContextInterceptor persistenceInterceptor
@@ -34,13 +34,15 @@ The plugin sets up a Grails service bean called executorService so you need do n
 
 	executorService( grails.plugin.executor.PersistenceContextExecutorWrapper ) { bean->
 		bean.destroyMethod = 'destroy'
+		persistenceInterceptor = ref("persistenceInterceptor")
 		executor = Executors.newCachedThreadPool()
 	}
 
-You can override it and inject your own special thread pool executor using [Executors][] by overriding the bean in conf/spring/resources.groovy or your doWithSpring in your plugin.
+You can override it and inject your own special thread pool executor using [Executors][] by overriding the bean in conf/spring/resources.groovy or the doWithSpring closure in your plugin.
 	
 	executorService(  grails.plugin.executor.PersistenceContextExecutorWrapper ) { bean->
 		bean.destroyMethod = 'destroy' //keep this destroy method so it can try and clean up nicely
+		persistenceInterceptor = ref("persistenceInterceptor")
 		//this can be whatever from Executors (don't write your own and pre-optimize)
 		executor = Executors.newCachedThreadPool(new YourSpecialThreadFactory()) 
 	}
@@ -48,7 +50,7 @@ You can override it and inject your own special thread pool executor using [Exec
 Usage
 ------
 
-You can inject the executorService into any bean. Its a PersistenceContextExecutorWrapper that delegates any calls to a concrete [ExecutorService][] implementation so, again, see the api for more on what you can do. Remember that a closure is a [Runnable][] so you can pass it to any of the methods that accept a runnable. A great example exists [here on the groovy site](http://groovy.codehaus.org/Concurrency+with+Groovy)
+You can inject the executorService into any bean. Its a [PersistenceContextExecutorWrapper][] that delegates any calls to a concrete [ExecutorService][] implementation so, again, see the api for more on what you can do. Remember that a [Closure][] is a [Runnable][] so you can pass it to any of the methods that accept a runnable. A great example exists [here on the groovy site](http://groovy.codehaus.org/Concurrency+with+Groovy)
 
 The plugin adds shortcut methods to any service/controller/domain artifacts.
 
@@ -139,7 +141,7 @@ the callAsync allows you to spin of a process and calls the underlying executorS
 GOTCHAS and TODOs
 --------
 
-* after this was written I realized that in extending the AbstractExecutorService and overriding the newTaskFor it only works for Java 1.6 and not 1.5 so submit won't get a session bound if you are running java 1.5
+* this only works with 1.6 java
 * TODO - setup a wrapper so we can use a [ScheduledExecutorService][] too.
 
 
@@ -147,5 +149,7 @@ GOTCHAS and TODOs
 [Executors]: http://download.oracle.com/javase/6/docs/api/java/util/concurrent/Executors.html
 [Future]: http://download-llnw.oracle.com/javase/6/docs/api/java/util/concurrent/Future.html
 [Runnable]: http://download.oracle.com/javase/6/docs/api/java/lang/Runnable.html
+[Closure]: http://groovy.codehaus.org/api/groovy/lang/Closure.html
 [ScheduledExecutorService]: http://download.oracle.com/javase/6/docs/api/java/util/concurrent/ScheduledExecutorService.html
+[PersistenceContextExecutorWrapper]: http://github.com/basejump/grails-executor/blob/master/src/groovy/grails/plugin/executor/PersistenceContextExecutorWrapper.groovy
 [PersistenceContextInterceptor]: http://grails.org/doc/latest/api/org/codehaus/groovy/grails/support/PersistenceContextInterceptor.html 
