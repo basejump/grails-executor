@@ -33,7 +33,7 @@ class PersistenceContextExecutorWrapper {
     
 	// Autowired
 	@Delegate ExecutorService executor
-	@Autowired PersistenceContextInterceptor persistenceInterceptor
+	PersistenceContextInterceptor persistenceInterceptor
 	
 	void execute(Runnable command) {
 		executor.execute(inPersistence(command))
