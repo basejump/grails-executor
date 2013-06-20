@@ -138,10 +138,9 @@ the callAsync allows you to spin of a process and calls the underlying executorS
 		}
 	}
 
-GOTCHAS and TODOs
+TODOs
 --------
 
-* this only works with 1.6 java
 * TODO - setup a wrapper so we can use a [ScheduledExecutorService][] too.
 
 
