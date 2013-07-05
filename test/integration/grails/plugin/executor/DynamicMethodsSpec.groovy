@@ -17,23 +17,23 @@
 package grails.plugin.executor
 
 import org.codehaus.groovy.grails.plugins.PluginManagerHolder
-import grails.plugin.spock.*
-import spock.lang.*
 
+import spock.lang.Unroll
 import executor.test.Book
+import grails.plugin.spock.IntegrationSpec
 
 class DynamicMethodsSpec extends IntegrationSpec {
 
 	// Autowired
 	def grailsApplication
-	
+
 	def currentClazz
-	
+
 	@Unroll("Reloading support for #clazz")
 	def reloading() {
 		setup:
 		currentClazz = clazz
-		
+
 		expect:
 		artifactHasExecutorMethods
 
@@ -42,13 +42,13 @@ class DynamicMethodsSpec extends IntegrationSpec {
 
 		then:
 		!artifactHasExecutorMethods
-		
+
 		when:
 		informOfClassChange()
-		
+
 		then:
 		artifactHasExecutorMethods
-		
+
 		where:
 		clazz << [TestService, TestController]
 	}
@@ -56,29 +56,28 @@ class DynamicMethodsSpec extends IntegrationSpec {
 	def "domain classes"() {
 		setup:
 		currentClazz = Book
-		
+
 		expect:
 		artifactHasExecutorMethods
 	}
-	
+
 	protected getArtifactHasExecutorMethods() {
 		createArtifact().respondsTo("runAsync", Runnable).size() > 0
 	}
-	
+
 	protected createArtifact() {
 		loadClass().newInstance()
 	}
-	
+
 	protected loadClass() {
 		grailsApplication.classLoader.loadClass(currentClazz.name)
 	}
-	
+
 	protected reloadClass() {
 		currentClazz = grailsApplication.classLoader.reloadClass(currentClazz.name)
 	}
-	
+
 	protected informOfClassChange() {
 		PluginManagerHolder.pluginManager.informOfClassChange(currentClazz)
 	}
-
 }

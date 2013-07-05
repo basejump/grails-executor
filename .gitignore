@@ -1,4 +1,5 @@
-target
+/target
 stacktrace.log
-*.zip
-*.xml
+/*.zip
+/plugin.xml
+/web-app

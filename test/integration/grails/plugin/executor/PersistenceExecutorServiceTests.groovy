@@ -15,10 +15,19 @@
  */
 package grails.plugin.executor
 
-import java.util.concurrent.*
-import executor.test.Book
-import org.junit.*
 import static org.junit.Assert.*
+
+import java.util.concurrent.Callable
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
+
+import org.junit.After
+import org.junit.AfterClass
+import org.junit.Before
+import org.junit.Test
+
+import executor.test.Book
 
 class PersistenceExecutorServiceTests {
 
@@ -27,11 +36,6 @@ class PersistenceExecutorServiceTests {
 	def sessionFactory
 	def executorService
 
-	@BeforeClass
-	static void setUpData() {
-		
-	}
-	
 	@Before
 	void setup() {
 
@@ -39,14 +43,14 @@ class PersistenceExecutorServiceTests {
 			1.upto(5) { new Book(name: "$it").save() }
 		}
 	}
-	
+
 	@After
 	void teardown() {
 		Book.withNewSession {
 			Book.list()*.delete()
 		}
 	}
-	
+
 	@Test
 	void testExecute() {
 		assertTrue Book.runAsyncFired.get()
@@ -65,14 +69,14 @@ class PersistenceExecutorServiceTests {
 		sleep(1000)
 		assertEquals(1, Book.count())
 	}
-	
+
 	@Test
 	void testSubmitCallable() {
 
 		assert 5 == Book.count()
 
 		def latch = new CountDownLatch(1)
-		
+
 		def closure = {
 			assertEquals(5, Book.count())
 			sleep(2000) //give it a couple of seconds in here so we can test stuff
@@ -81,21 +85,21 @@ class PersistenceExecutorServiceTests {
 			latch.countDown()
 			return book
 		}
-		
+
 		Future future = executorService.submit(closure as Callable)
 
 		//this should fire while the submited callable task is still running still show 5
 		assertEquals(5, Book.count())
-		
+
 		waitFor "end of callable", latch, 4l
 		//just to make sure we are good this thread before the other finishes
 		new Book(name: "normal book").save()
-		
-		def fbook = future.get() //this will sit here and wait for the submited callable to finish and return the value. 
+
+		def fbook = future.get() //this will sit here and wait for the submited callable to finish and return the value.
 		assertEquals "async book", fbook.name
 		assertEquals(2, Book.count())
 	}
-	
+
 	@Test
 	void testSubmitRunnable() {
 
@@ -109,12 +113,12 @@ class PersistenceExecutorServiceTests {
 		} as Runnable)
 
 		waitFor "end of runnable", latch
-		
+
 		def fbook = future.get() //this will return a null since we sumbmited a runnable
 		assertNull fbook
 		assertEquals(0, Book.count())
 	}
-	
+
 	@Test
 	void testSubmitRunnableWithReturn() {
 
@@ -123,16 +127,16 @@ class PersistenceExecutorServiceTests {
 			Book.list()*.delete()
 			latch.countDown()
 		}
-		
+
 		Future future = executorService.submit(clos,"nailed it" )
 		waitFor "end of runnable", latch
-		
+
 		def fbook = future.get() //this will return a null since we sumbmited a runnable
 		assertEquals "nailed it", fbook
 		assertEquals(0, Book.count())
-	
+
 	}
-	
+
 	@AfterClass
 	static void tearDownData() {
 /*		Album.withNewSession { session ->
@@ -140,12 +144,10 @@ class PersistenceExecutorServiceTests {
 			session.flush()
 		}*/
 	}
-	
+
 	static void waitFor(String message, CountDownLatch latch, long timeout = 1l) {
 		if (!latch.await(timeout, TimeUnit.SECONDS)) {
 			fail "Timed out waiting for $message, $latch.count more latch countDown should have run"
 		}
 	}
-
 }
-

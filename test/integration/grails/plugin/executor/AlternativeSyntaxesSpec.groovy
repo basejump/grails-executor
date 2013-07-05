@@ -16,13 +16,10 @@
 
 package grails.plugin.executor
 
-import grails.plugin.spock.*
-import spock.lang.*
-import spock.util.concurrent.BlockingVariable
+import grails.plugin.spock.IntegrationSpec
 
-import java.util.concurrent.*
-
-import executor.test.Book
+import java.util.concurrent.Future
+import java.util.concurrent.TimeUnit
 
 class AlternativeSyntaxesSpec extends IntegrationSpec {
 
@@ -32,11 +29,9 @@ class AlternativeSyntaxesSpec extends IntegrationSpec {
 	def "left shift closure"() {
 		when:
 		def future = executorService << { 2 }
-		
+
 		then:
-		future != null
 		future instanceof Future
 		future.get(1, TimeUnit.SECONDS)
 	}
-
 }
