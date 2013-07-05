@@ -29,6 +29,10 @@ class ExecutorGrailsPlugin {
 	def description = "its all concurrent baby."
 	def documentation = "http://github.com/basejump/grails-executor"
 
+	def license = 'APACHE'
+	def issueManagement = [system: 'GITHUB', url: 'https://github.com/basejump/grails-executor/issues']
+	def scm = [url: 'https://github.com/basejump/grails-executor']
+
 	def observe = ["controllers","services"]
 
 	def pluginExcludes = [
