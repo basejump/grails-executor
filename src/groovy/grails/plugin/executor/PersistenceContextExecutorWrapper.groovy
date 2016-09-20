@@ -17,24 +17,24 @@
 package grails.plugin.executor
 
 import java.util.concurrent.Callable
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Future
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.ExecutorService
 
 import org.codehaus.groovy.grails.support.PersistenceContextInterceptor
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.util.Assert
 
 /**
- * Wraps an ExecutorService, overriding the submitting methods to have the work done in a 
- * persistence context (via the persistenceInterceptor) and adds new methods that make it possible 
+ * Wraps an ExecutorService, overriding the submitting methods to have the work done in a
+ * persistence context (via the persistenceInterceptor) and adds new methods that make it possible
  * to still do work without opening a persistence context
  */
 class PersistenceContextExecutorWrapper {
-    
+
 	// Autowired
 	@Delegate ExecutorService executor
 	PersistenceContextInterceptor persistenceInterceptor
-	
+
 	void execute(Runnable command) {
 		executor.execute(inPersistence(command))
 	}
@@ -46,7 +46,7 @@ class PersistenceContextExecutorWrapper {
 	void executeWithoutPersistence(Runnable command) {
 		executor.execute(command)
 	}
-	
+
 	public <T> Future<T> submit(Callable<T> task) {
 		executor.submit(inPersistence(task))
 	}
@@ -58,7 +58,7 @@ class PersistenceContextExecutorWrapper {
 	public <T> Future<T> submitWithoutPersistence(Callable<T> task) {
 		executor.submit(task)
 	}
-	
+
 	Future<?> submit(Runnable task) {
 		executor.submit(inPersistence(task))
 	}
@@ -70,7 +70,7 @@ class PersistenceContextExecutorWrapper {
 	Future<?> submitWithoutPersistence(Runnable task) {
 		executor.submit(task)
 	}
-	
+
 	public <T> Future<T> submit(Runnable task, T result) {
 		executor.submit(inPersistence(task), result)
 	}
@@ -82,15 +82,15 @@ class PersistenceContextExecutorWrapper {
 	public <T> Future<T> submitWithoutPersistence(Runnable task, T result) {
 		executor.submit(task, result)
 	}
-	
+
 	Future withSession(Closure task) {
 		withPersistence(task)
 	}
-	
+
 	Future withPersistence(Closure task) {
 		executor.submit(inPersistence((Closure)task))
 	}
-	
+
 	Future withoutSession(Closure task) {
 		executor.withoutPersistence(task)
 	}
@@ -102,33 +102,30 @@ class PersistenceContextExecutorWrapper {
 	Future leftShift(Closure task) {
 		withPersistence(task)
 	}
-	
+
 	Callable inPersistence(Closure task) {
 		inPersistence(task as Callable)
 	}
 
 	Callable inPersistence(Callable task) {
-		if (persistenceInterceptor == null) {
-			throw new IllegalStateException("Unable to create persistence context wrapped callable because persistenceInterceptor is null")
-		}
-		
+		Assert.state(persistenceInterceptor != null,
+			"Unable to create persistence context wrapped callable because persistenceInterceptor is null")
+
 		new PersistenceContextCallableWrapper(persistenceInterceptor, task)
 	}
 
 	Runnable inPersistence(Runnable task) {
-		if (persistenceInterceptor == null) {
-			throw new IllegalStateException("Unable to create persistence context wrapped runnable because persistenceInterceptor is null")
-		}
-		
+		Assert.state(persistenceInterceptor != null,
+			"Unable to create persistence context wrapped runnable because persistenceInterceptor is null")
+
 		new PersistenceContextRunnableWrapper(persistenceInterceptor, task)
 	}
-	
-	public void destroy() {
+
+	void destroy() {
 		executor.shutdown()
 		if (!executor.awaitTermination(2, TimeUnit.SECONDS)) {
 			log.warn "ExecutorService did not shutdown in 2 seconds. Forcing shutdown of any scheduled tasks"
 			executor.shutdownNow()
 		}
 	}
-
 }

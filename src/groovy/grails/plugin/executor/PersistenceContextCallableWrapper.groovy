@@ -24,14 +24,14 @@ import org.codehaus.groovy.grails.support.PersistenceContextInterceptor
  * Wraps the execution of a Callable in a persistence context, via the persistenceInterceptor.
  */
 class PersistenceContextCallableWrapper<T> extends PersistenceContextWrapper implements Callable<T> {
-	
+
 	private final Callable callable
 
 	PersistenceContextCallableWrapper(PersistenceContextInterceptor persistenceInterceptor, Callable<T> callable) {
 		super(persistenceInterceptor)
 		this.callable = callable
 	}
-	
+
 	T call() {
 		wrap { callable.call() }
 	}

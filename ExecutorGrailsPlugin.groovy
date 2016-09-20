@@ -15,14 +15,13 @@
  */
 
 import grails.plugin.executor.PersistenceContextExecutorWrapper
+
 import java.util.concurrent.Executors
-import java.util.concurrent.Callable
 
 class ExecutorGrailsPlugin {
 
 	def version = "0.3"
 	def grailsVersion = "1.2 > *"
-	def dependsOn = [:]
 
 	def author = "Joshua Burnett"
 	def authorEmail = "joshua@greenbill.com"
@@ -30,11 +29,15 @@ class ExecutorGrailsPlugin {
 	def description = "its all concurrent baby."
 	def documentation = "http://github.com/basejump/grails-executor"
 
+	def license = 'APACHE'
+	def issueManagement = [system: 'GITHUB', url: 'https://github.com/basejump/grails-executor/issues']
+	def scm = [url: 'https://github.com/basejump/grails-executor']
+
 	def observe = ["controllers","services"]
 
-    def pluginExcludes = [
-		"grails-app/**/*", 
-		"web-app/**/*"
+	def pluginExcludes = [
+		"grails-app/**",
+		"web-app/**"
 	]
 
 	def doWithSpring = {
@@ -44,7 +47,7 @@ class ExecutorGrailsPlugin {
 			executor = Executors.newCachedThreadPool()
 		}
 	}
-	
+
 	def addAsyncMethods(application, clazz) {
 		clazz.metaClass.runAsync = { Runnable runme ->
 			application.mainContext.executorService.withPersistence(runme)
@@ -70,5 +73,4 @@ class ExecutorGrailsPlugin {
 			addAsyncMethods(application, event.source)
 		}
 	}
-
 }
