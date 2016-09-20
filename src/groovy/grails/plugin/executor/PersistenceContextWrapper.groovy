@@ -34,8 +34,11 @@ class PersistenceContextWrapper {
 		try {
 			wrapped()
 		} finally {
-			persistenceInterceptor.flush()
-			persistenceInterceptor.destroy()
+			try {
+				persistenceInterceptor.flush()
+			} finally {
+				persistenceInterceptor.destroy()
+		 	}
 		}
 	}
 }
